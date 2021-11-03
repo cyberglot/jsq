@@ -3,7 +3,8 @@
 Generate JavaScript in Haskell using Template Haskell. It extends existing library [[https://hackage.haskell.org/package/jmacro][jmacro]] with newer JavaScript features.
 
 ** Roadmap
- *** TODO =const=
- *** TODO =let=
- *** TODO =async/await=
- *** TODO =()=>()= and =()=>{}=
+ * TODO
+   - [ ] =const=
+   - [ ]  =let=
+   - [ ] =async/await=
+   - [ ] =()=>()= and =()=>{}=
