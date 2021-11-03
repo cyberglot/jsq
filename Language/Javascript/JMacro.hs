@@ -1,16 +1,16 @@
 {- |
-Module      :  Language.Javascript.JMacro
+Module      :  Language.JavaScript.JMacro
 Copyright   :  (c) Gershom Bazerman, 2010
 License     :  BSD 3 Clause
 Maintainer  :  gershomb@gmail.com
 Stability   :  experimental
 
-Simple DSL for lightweight (untyped) programmatic generation of Javascript.
+Simple DSL for lightweight (untyped) programmatic generation of JavaScript.
 
-A number of examples are available in the source of "Language.Javascript.JMacro.Prelude".
+A number of examples are available in the source of "Language.JavaScript.JMacro.Prelude".
 
 Functions to generate generic RPC wrappers (using json serialization) are available in
-"Language.Javascript.JMacro.Rpc".
+"Language.JavaScript.JMacro.Rpc".
 
 usage:
 
@@ -52,34 +52,34 @@ While the above is an error. (i.e. standard javascript function application cann
 
 > \x -> [jmacroE|foo `(x)`|]
 
-The above is a haskell expression that provides a function that takes an x, and yields an expression representing the application of foo to the value of x as transformed to a Javascript expression.
+The above is a haskell expression that provides a function that takes an x, and yields an expression representing the application of foo to the value of x as transformed to a JavaScript expression.
 
 > [jmacroE|\x ->`(foo x)`|]
 
-Meanwhile, the above lambda is in Javascript, and brings the variable into scope both in javascript and in the enclosed antiquotes. The expression is a Javascript function that takes an x, and yields an expression produced by the application of the Haskell function foo as applied to the identifier x (which is of type JExpr -- i.e. a Javascript expression).
+Meanwhile, the above lambda is in JavaScript, and brings the variable into scope both in javascript and in the enclosed antiquotes. The expression is a JavaScript function that takes an x, and yields an expression produced by the application of the Haskell function foo as applied to the identifier x (which is of type JExpr -- i.e. a JavaScript expression).
 
-Other than that, the language is essentially Javascript (1.5). Note however that one must use semicolons in a principled fashion -- i.e. to end statements consistently. Otherwise, the parser will mistake the whitespace for a whitespace application, and odd things will occur. A further gotcha exists in regex literals, whicch cannot begin with a space. @x / 5 / 4@ parses as ((x / 5) / 4). However, @x /5 / 4@ will parse as x(/5 /, 4). Such are the perils of operators used as delimeters in the presence of whitespace application.
+Other than that, the language is essentially JavaScript (1.5). Note however that one must use semicolons in a principled fashion -- i.e. to end statements consistently. Otherwise, the parser will mistake the whitespace for a whitespace application, and odd things will occur. A further gotcha exists in regex literals, whicch cannot begin with a space. @x / 5 / 4@ parses as ((x / 5) / 4). However, @x /5 / 4@ will parse as x(/5 /, 4). Such are the perils of operators used as delimeters in the presence of whitespace application.
 
 Additional features in jmacro (documented on the wiki) include an infix application operator, and an enhanced destructuring bind.
 
-Additional datatypes can be marshalled to Javascript by proper instance declarations for the ToJExpr class.
+Additional datatypes can be marshalled to JavaScript by proper instance declarations for the ToJExpr class.
 
-An experimental typechecker is available in the "Language.Javascript.JMacro.Typed" module.
+An experimental typechecker is available in the "Language.JavaScript.JMacro.Typed" module.
 
 -}
 
-module Language.Javascript.JMacro (
-  module Language.Javascript.JMacro.QQ,
-  module Language.Javascript.JMacro.Base,
-  module Language.Javascript.JMacro.Prelude,
-  module Language.Javascript.JMacro.Types
+module Language.JavaScript.JMacro (
+  module Language.JavaScript.JMacro.QQ,
+  module Language.JavaScript.JMacro.Base,
+  module Language.JavaScript.JMacro.Prelude,
+  module Language.JavaScript.JMacro.Types
  ) where
 
 {-
 import Prelude hiding (tail, init, head, last, minimum, maximum, foldr1, foldl1, (!!), read)
 -}
 
-import Language.Javascript.JMacro.Base hiding (expr2stat)
-import Language.Javascript.JMacro.QQ
-import Language.Javascript.JMacro.Prelude
-import Language.Javascript.JMacro.Types (JType(..))
+import Language.JavaScript.JMacro.Base hiding (expr2stat)
+import Language.JavaScript.JMacro.QQ
+import Language.JavaScript.JMacro.Prelude
+import Language.JavaScript.JMacro.Types (JType(..))

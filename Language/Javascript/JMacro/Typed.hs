@@ -1,10 +1,10 @@
 {-# LANGUAGE QuasiQuotes, FlexibleInstances #-}
-module Language.Javascript.JMacro.Typed where
+module Language.JavaScript.JMacro.Typed where
 
 import Prelude hiding (tail, init, head, last, minimum, maximum, foldr1, foldl1, (!!), read)
 
-import Language.Javascript.JMacro.Base
-import Language.Javascript.JMacro.QQ
+import Language.JavaScript.JMacro.Base
+import Language.JavaScript.JMacro.QQ
 import Control.Monad
 import Control.Monad.State
 import Control.Monad.Error

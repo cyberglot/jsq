@@ -3,17 +3,17 @@
 
 -----------------------------------------------------------------------------
 {- |
-Module      :  Language.Javascript.JMacro.Base
+Module      :  Language.JavaScript.JMacro.Base
 Copyright   :  (c) Gershom Bazerman, 2009
 License     :  BSD 3 Clause
 Maintainer  :  gershomb@gmail.com
 Stability   :  experimental
 
-Simple DSL for lightweight (untyped) programmatic generation of Javascript.
+Simple DSL for lightweight (untyped) programmatic generation of JavaScript.
 -}
 -----------------------------------------------------------------------------
 
-module Language.Javascript.JMacro.Base (
+module Language.JavaScript.JMacro.Base (
   -- * ADT
   JStat(..), JExpr(..), JVal(..), Ident(..), IdentSupply(..), JsLabel,
   -- * Generic traversal (via compos)
@@ -59,7 +59,7 @@ import Text.PrettyPrint.Leijen.Text hiding ((<$>))
 
 import qualified Text.PrettyPrint.Leijen.Text as PP
 
-import Language.Javascript.JMacro.Types
+import Language.JavaScript.JMacro.Types
 
 -- wl-pprint-text compatibility with pretty
 infixl 5 $$, $+$

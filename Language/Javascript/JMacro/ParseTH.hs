@@ -1,4 +1,4 @@
-module Language.Javascript.JMacro.ParseTH (parseHSExp) where
+module Language.JavaScript.JMacro.ParseTH (parseHSExp) where
 
 import Language.Haskell.Meta.Parse
 import qualified Language.Haskell.TH as TH

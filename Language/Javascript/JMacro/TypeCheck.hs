@@ -1,9 +1,9 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving, FlexibleInstances, PatternGuards, RankNTypes, FlexibleContexts #-}
 
-module Language.Javascript.JMacro.TypeCheck where
+module Language.JavaScript.JMacro.TypeCheck where
 
-import Language.Javascript.JMacro.Base
-import Language.Javascript.JMacro.Types
+import Language.JavaScript.JMacro.Base
+import Language.JavaScript.JMacro.Types
 
 import Control.Applicative
 import Control.Monad

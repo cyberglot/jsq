@@ -2,17 +2,17 @@
 
 -----------------------------------------------------------------------------
 {- |
-Module      :  Language.Javascript.JMacro
+Module      :  Language.JavaScript.JMacro
 Copyright   :  (c) Gershom Bazerman, 2009
 License     :  BSD 3 Clause
 Maintainer  :  gershomb@gmail.com
 Stability   :  experimental
 
-Simple EDSL for lightweight (untyped) programmatic generation of Javascript.
+Simple EDSL for lightweight (untyped) programmatic generation of JavaScript.
 -}
 -----------------------------------------------------------------------------
 
-module Language.Javascript.JMacro.QQ(jmacro,jmacroE,parseJM,parseJME) where
+module Language.JavaScript.JMacro.QQ(jmacro,jmacroE,parseJM,parseJME) where
 import Prelude hiding (tail, init, head, last, minimum, maximum, foldr1, foldl1, (!!), read)
 import Control.Applicative hiding ((<|>),many,optional)
 import Control.Arrow(first)
@@ -38,9 +38,9 @@ import Text.ParserCombinators.Parsec.Language(javaStyle)
 
 import Text.Regex.Posix.String
 
-import Language.Javascript.JMacro.Base
-import Language.Javascript.JMacro.Types
-import Language.Javascript.JMacro.ParseTH
+import Language.JavaScript.JMacro.Base
+import Language.JavaScript.JMacro.Types
+import Language.JavaScript.JMacro.ParseTH
 
 import System.IO.Unsafe
 import Numeric(readHex)

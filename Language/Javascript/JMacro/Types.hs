@@ -1,5 +1,5 @@
 {-# Language StandaloneDeriving, DeriveDataTypeable, FlexibleContexts, UndecidableInstances, FlexibleInstances #-}
-module Language.Javascript.JMacro.Types (
+module Language.JavaScript.JMacro.Types (
   JType(..), Constraint(..), JLocalType, VarRef, anyType, parseType, runTypeParser
   ) where
 

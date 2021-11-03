@@ -1,5 +1,5 @@
 {- |
-Module      :  Language.Javascript.JMacro.Prelude
+Module      :  Language.JavaScript.JMacro.Prelude
 Copyright   :  (c) Gershom Bazerman, Jeff Polakow 2010
 License     :  BSD 3 Clause
 Maintainer  :  gershomb@gmail.com
@@ -8,9 +8,9 @@ Stability   :  experimental
 
 {-# LANGUAGE QuasiQuotes #-}
 
-module Language.Javascript.JMacro.Prelude where
-import Language.Javascript.JMacro.Base
-import Language.Javascript.JMacro.QQ
+module Language.JavaScript.JMacro.Prelude where
+import Language.JavaScript.JMacro.Base
+import Language.JavaScript.JMacro.QQ
 
 
 -- | This provides a set of basic functional programming primitives, a few utility functions

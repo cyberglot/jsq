@@ -1,7 +1,7 @@
 {-# LANGUAGE QuasiQuotes, MultiParamTypeClasses, FunctionalDependencies, UndecidableInstances #-}
 
 {- |
-Module      :  Language.Javascript.JMacro.Conversation
+Module      :  Language.JavaScript.JMacro.Conversation
 Copyright   :  (c) Gershom Bazerman, 2010
 License     :  BSD 3 Clause
 Maintainer  :  gershomb@gmail.com
@@ -13,7 +13,7 @@ Stability   :  experimental
 
 -}
 
-module Language.Javascript.JMacro.Conversation (
+module Language.JavaScript.JMacro.Conversation (
    mkWebRPC, asIO, Request, Response(..), WebRPCDesc, WebConvRPC
 ) where
 
@@ -30,9 +30,9 @@ import Text.Html
 import Text.JSON
 import Text.JSON.String
 
-import Language.Javascript.JMacro.Base
-import Language.Javascript.JMacro.QQ
-import Language.Javascript.JMacro.Rpc
+import Language.JavaScript.JMacro.Base
+import Language.JavaScript.JMacro.QQ
+import Language.JavaScript.JMacro.Rpc
 
 type WebConvRPCDesc = (String, (Int,Request) -> IO Response)
 

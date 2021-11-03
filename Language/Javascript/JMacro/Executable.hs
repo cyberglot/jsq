@@ -5,7 +5,7 @@ module Main where
 import Text.PrettyPrint.Leijen.Text (hPutDoc)
 import Control.Applicative
 import Control.Monad
-import Language.Javascript.JMacro
+import Language.JavaScript.JMacro
 import System.Environment
 import System.Console.ParseArgs
 import System.IO
