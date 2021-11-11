@@ -286,7 +286,7 @@ lexer = P.makeTokenParser jsLang
 
 jsLang :: P.LanguageDef ()
 jsLang = javaStyle {
-           P.reservedNames = ["var","return","if","else","while","for","in","break","continue","new","function","switch","case","default","fun","try","catch","finally","foreign","do"],
+           P.reservedNames = ["var", "const", "let", "return","if","else","while","for","in","break","continue","new","function","switch","case","default","fun","try","catch","finally","foreign","do"],
            P.reservedOpNames = ["|>","<|","+=","-=","*=","/=","%=","<<=", ">>=", ">>>=", "&=", "^=", "|=", "--","*","/","+","-",".","%","?","=","==","!=","<",">","&&","||","&", "^", "|", "++","===","!==", ">=","<=","!", "~", "<<", ">>", ">>>", "->","::","::!",":|","@"],
            P.identLetter = alphaNum <|> oneOf "_$",
            P.identStart  = letter <|> oneOf "_$",
@@ -460,6 +460,18 @@ statement = declStat
     where
       declStat = do
         reserved "var"
+        res <- concat <$> commaSep1 destructuringDecl
+        _ <- semi
+        return res
+
+      constStat = do
+        reserved "const"
+        res <- concat <$> commaSep1 destructuringDecl
+        _ <- semi
+        return res
+
+      letStat = do
+        reserved "let"
         res <- concat <$> commaSep1 destructuringDecl
         _ <- semi
         return res

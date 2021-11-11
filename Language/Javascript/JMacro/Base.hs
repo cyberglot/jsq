@@ -128,24 +128,26 @@ instance Show a => Show (IdentSupply a) where
 --add postfix stat
 
 -- | Statements
-data JStat = DeclStat   Ident (Maybe JLocalType)
-           | ReturnStat JExpr
-           | IfStat     JExpr JStat JStat
-           | WhileStat  Bool JExpr JStat -- bool is "do"
-           | ForInStat  Bool Ident JExpr JStat -- bool is "each"
-           | SwitchStat JExpr [(JExpr, JStat)] JStat
-           | TryStat    JStat Ident JStat JStat
-           | BlockStat  [JStat]
-           | ApplStat   JExpr [JExpr]
-           | PPostStat  Bool String JExpr
-           | AssignStat JExpr JExpr
-           | UnsatBlock (IdentSupply JStat)
-           | AntiStat   String
-           | ForeignStat Ident JLocalType
-           | LabelStat JsLabel JStat
-           | BreakStat (Maybe JsLabel)
+data JStat = DeclStat     Ident (Maybe JLocalType)
+           | ConstStat    Ident (Maybe JLocalType)
+           | LetStat      Ident (Maybe JLocalType)
+           | ReturnStat   JExpr
+           | IfStat       JExpr JStat JStat
+           | WhileStat    Bool JExpr JStat        -- bool is "do"
+           | ForInStat    Bool Ident JExpr JStat  -- bool is "each"
+           | SwitchStat   JExpr [(JExpr, JStat)] JStat
+           | TryStat      JStat Ident JStat JStat
+           | BlockStat    [JStat]
+           | ApplStat     JExpr [JExpr]
+           | PPostStat    Bool String JExpr
+           | AssignStat   JExpr JExpr
+           | UnsatBlock   (IdentSupply JStat)
+           | AntiStat     String
+           | ForeignStat  Ident JLocalType
+           | LabelStat    JsLabel JStat
+           | BreakStat    (Maybe JsLabel)
            | ContinueStat (Maybe JsLabel)
-             deriving (Eq, Ord, Show, Data, Typeable)
+           deriving (Eq, Ord, Show, Data, Typeable)
 
 type JsLabel = String
 
@@ -165,6 +167,8 @@ instance Monoid JStat where
 -- TODO: annotate expressions with type
 -- | Expressions
 data JExpr = ValExpr    JVal
+           | ConstExpr  JVal
+           | LetExpr    JVal
            | SelExpr    JExpr Ident
            | IdxExpr    JExpr JExpr
            | InfixExpr  String JExpr JExpr
@@ -281,6 +285,8 @@ jmcompos ret app f' v =
      JMGId _ -> ret v
      JMGStat v' -> ret JMGStat `app` case v' of
            DeclStat i t -> ret DeclStat `app` f i `app` ret t
+           ConstStat i t -> ret DeclStat `app` f i `app` ret t
+           LetStat i t -> ret DeclStat `app` f i `app` ret t
            ReturnStat i -> ret ReturnStat `app` f i
            IfStat e s s' -> ret IfStat `app` f e `app` f s `app` f s'
            WhileStat b e s -> ret (WhileStat b) `app` f e `app` f s
@@ -505,10 +511,9 @@ instance JsToDoc JStat where
     jsToDoc (IfStat cond x y) = text "if" <> parens (jsToDoc cond) $$ braceNest' (jsToDoc x) $$ mbElse
         where mbElse | y == BlockStat []  = PP.empty
                      | otherwise = text "else" $$ braceNest' (jsToDoc y)
-    jsToDoc (DeclStat x t) = text "var" <+> jsToDoc x <> rest
-        where rest = case t of
-                       Nothing -> text ""
-                       Just tp -> text " /* ::" <+> jsToDoc tp <+> text "*/"
+    jsToDoc (DeclStat x t) = text "var" <+> jsToDoc x <> handleDecl t
+    jsToDoc (ConstStat x t) = text "const" <+> jsToDoc x <> handleDecl t
+    jsToDoc (LetStat x t) = text "let" <+> jsToDoc x <> handleDecl t
     jsToDoc (WhileStat False p b)  = text "while" <> parens (jsToDoc p) $$ braceNest' (jsToDoc b)
     jsToDoc (WhileStat True  p b)  = (text "do" $$ braceNest' (jsToDoc b)) $+$ text "while" <+> parens (jsToDoc p)
     jsToDoc (UnsatBlock e) = jsToDoc $ sat_ e
@@ -556,6 +561,8 @@ optParens x = case x of
 
 instance JsToDoc JExpr where
     jsToDoc (ValExpr x) = jsToDoc x
+    jsToDoc (ConstExpr x) = jsToDoc x
+    jsToDoc (LetExpr x) = jsToDoc x
     jsToDoc (SelExpr x y) = cat [jsToDoc x <> char '.', jsToDoc y]
     jsToDoc (IdxExpr x y) = jsToDoc x <> brackets (jsToDoc y)
     jsToDoc (IfExpr x y z) = parens (jsToDoc x <+> char '?' <+> jsToDoc y <+> char ':' <+> jsToDoc z)
