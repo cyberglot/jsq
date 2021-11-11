@@ -14,14 +14,15 @@ Simple EDSL for lightweight (untyped) programmatic generation of JavaScript.
 
 module Language.JavaScript.JMacro.QQ(jmacro,jmacroE,parseJM,parseJME) where
 import Prelude hiding (tail, init, head, last, minimum, maximum, foldr1, foldl1, (!!), read)
-import Control.Applicative hiding ((<|>),many,optional)
-import Control.Arrow(first)
+import Control.Applicative ()
+import Control.Arrow (first)
 import Control.Monad.State.Strict
+    ( guard, MonadPlus(mzero), liftM2, liftM3, when )
 import Data.Char(digitToInt, toLower, isUpper)
 import Data.List(isPrefixOf, sort)
 import Data.Generics(extQ,Data)
 import Data.Maybe(fromMaybe)
-import Data.Monoid
+import Data.Monoid ()
 import qualified Data.Map as M
 
 --import Language.Haskell.Meta.Parse
@@ -29,21 +30,74 @@ import qualified Language.Haskell.TH as TH
 import Language.Haskell.TH(mkName)
 --import qualified Language.Haskell.TH.Lib as TH
 import Language.Haskell.TH.Quote
+    ( dataToExpQ,
+      dataToPatQ,
+      QuasiQuoter(QuasiQuoter, quoteExp, quotePat) )
 
 import Text.ParserCombinators.Parsec
+    ( alphaNum,
+      anyChar,
+      char,
+      digit,
+      hexDigit,
+      letter,
+      noneOf,
+      octDigit,
+      oneOf,
+      string,
+      eof,
+      many1,
+      manyTill,
+      option,
+      optionMaybe,
+      optional,
+      sepBy1,
+      sepEndBy1,
+      errorPos,
+      setSourceLine,
+      sourceLine,
+      (<?>),
+      (<|>),
+      lookAhead,
+      many,
+      unexpected,
+      pzero,
+      runParser,
+      try,
+      ParseError,
+      CharParser )
 import Text.ParserCombinators.Parsec.Expr
+    ( buildExpressionParser,
+      Assoc(AssocRight, AssocNone, AssocLeft),
+      Operator(Prefix, Infix) )
 import Text.ParserCombinators.Parsec.Error
+    ( errorPos, ParseError, setErrorPos )
 import qualified Text.ParserCombinators.Parsec.Token as P
 import Text.ParserCombinators.Parsec.Language(javaStyle)
 
 import Text.Regex.Posix.String
+    ( compile, compExtended, execBlank, Regex, WrapError )
 
 import Language.JavaScript.JMacro.Base
+    ( JMGadt(JMGExpr),
+      JMacro(..),
+      Ident(..),
+      JVal(JFunc, JInt, JDouble, JStr, JRegEx, JList, JObject, JVar),
+      JExpr(ValExpr, TypeExpr, IfExpr, InfixExpr, SelExpr, IdxExpr,
+            PPostExpr, ApplExpr, NewExpr, AntiExpr),
+      JStat(ForeignStat, IfStat, SwitchStat, TryStat, ForInStat,
+            ReturnStat, WhileStat, BreakStat, ContinueStat, LabelStat,
+            AntiStat, DeclStat, AssignStat, ApplStat, BlockStat),
+      expr2stat,
+      composOp,
+      jsv,
+      nullStat )
 import Language.JavaScript.JMacro.Types
-import Language.JavaScript.JMacro.ParseTH
+    ( JLocalType, JType(JTRecord), runTypeParser )
+import Language.JavaScript.JMacro.ParseTH ( parseHSExp )
 
-import System.IO.Unsafe
-import Numeric(readHex)
+import System.IO.Unsafe ( unsafePerformIO )
+import Numeric (readHex)
 
 -- import Debug.Trace
 
@@ -123,7 +177,7 @@ jm2th v = dataToExpQ (const Nothing
                       `extQ` handleTyp
                      ) v
 
-    where handleStat :: JStat -> Maybe (TH.ExpQ)
+    where handleStat :: JStat -> Maybe TH.ExpQ
           handleStat (BlockStat ss) = Just $
                                       appConstr "BlockStat" $
                                       TH.listE (blocks ss)
@@ -182,7 +236,7 @@ jm2th v = dataToExpQ (const Nothing
 
           handleStat _ = Nothing
 
-          handleExpr :: JExpr -> Maybe (TH.ExpQ)
+          handleExpr :: JExpr -> Maybe TH.ExpQ
           handleExpr (AntiExpr s) = case parseHSExp s of
                                       Right ans -> Just $ TH.appE (TH.varE (mkName "toJExpr")) (return ans)
                                       Left err -> Just $ fail err
@@ -194,16 +248,16 @@ jm2th v = dataToExpQ (const Nothing
 
           handleExpr _ = Nothing
 
-          handleVal :: JVal -> Maybe (TH.ExpQ)
-          handleVal (JHash m) = Just $
+          handleVal :: JVal -> Maybe TH.ExpQ
+          handleVal (JObject m) = Just $
                                 TH.appE (TH.varE $ mkName "jhFromList") $
                                 jm2th (M.toList m)
           handleVal _ = Nothing
 
-          handleStr :: String -> Maybe (TH.ExpQ)
+          handleStr :: String -> Maybe TH.ExpQ
           handleStr x = Just $ TH.litE $ TH.StringL x
 
-          handleTyp :: JType -> Maybe (TH.ExpQ)
+          handleTyp :: JType -> Maybe TH.ExpQ
           handleTyp (JTRecord t mp) = Just $
                                     TH.appE (TH.appE (TH.varE $ mkName "jtFromList") (jm2th t))
                                           (jm2th $ M.toList mp)
@@ -501,7 +555,7 @@ statement = declStat
         e <- expr
         char ')' >> whiteSpace
         s <- l2s <$> statement
-        return $ [ForInStat isEach i e s]
+        return [ForInStat isEach i e s]
 
       simpleForStat = do
         (before,after,p) <- parens threeStat
@@ -531,7 +585,7 @@ statement = declStat
                                                <|> rop "^="
                                                <|> rop "|="
                                               )
-          let gofail  = fail ("Invalid assignment.")
+          let gofail  = fail "Invalid assignment."
               badList = ["this","true","false","undefined","null"]
           case e1 of
             ValExpr (JVar (StrI s)) -> if s `elem` badList then gofail else return ()
@@ -693,7 +747,7 @@ dotExprOne = addNxt =<< valExpr <|> antiExpr <|> antiExprSimple <|> parens' expr
                   Right _ -> return (JRegEx s)
                   Left err -> fail ("Parse error in regexp: " ++ show err)
               list  = JList  <$> brackets' (commaSep expr)
-              hash  = JHash  . M.fromList <$> braces' (commaSep propPair)
+              hash  = JObject  . M.fromList <$> braces' (commaSep propPair)
               var = JVar <$> ident'
               func = do
                 (symbol "\\" >> return ()) <|> reserved "function"

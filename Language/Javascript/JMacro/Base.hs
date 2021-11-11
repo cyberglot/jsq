@@ -1,12 +1,24 @@
-{-# LANGUAGE FlexibleInstances, UndecidableInstances, OverlappingInstances, OverloadedStrings, TypeFamilies, RankNTypes, DeriveDataTypeable, StandaloneDeriving, FlexibleContexts, TypeSynonymInstances, ScopedTypeVariables, GADTs
-           , GeneralizedNewtypeDeriving, LambdaCase #-}
+{-# LANGUAGE FlexibleInstances
+           , UndecidableInstances
+           , OverlappingInstances
+           , OverloadedStrings
+           , TypeFamilies
+           , RankNTypes
+           , DeriveDataTypeable
+           , StandaloneDeriving
+           , FlexibleContexts
+           , TypeSynonymInstances
+           , ScopedTypeVariables
+           , GADTs
+           , GeneralizedNewtypeDeriving
+           , LambdaCase #-}
 
 -----------------------------------------------------------------------------
 {- |
 Module      :  Language.JavaScript.JMacro.Base
-Copyright   :  (c) Gershom Bazerman, 2009
+Copyright   :  (c) April Gonçalves, 2020. Gershom Bazerman, 2009.
 License     :  BSD 3 Clause
-Maintainer  :  gershomb@gmail.com
+Maintainer  :  april@cyberglot.me
 Stability   :  experimental
 
 Simple DSL for lightweight (untyped) programmatic generation of JavaScript.
@@ -47,8 +59,8 @@ import qualified Data.Map as M
 import qualified Data.Text.Lazy as T
 import qualified Data.Text as TS
 import Data.Generics
-import Data.Monoid(Monoid, mappend, mempty)
-import Data.Semigroup(Semigroup(..))
+import Data.Monoid (Monoid, mappend, mempty)
+import Data.Semigroup (Semigroup(..))
 
 import Numeric(showHex)
 import Safe
@@ -163,7 +175,7 @@ data JExpr = ValExpr    JVal
            | UnsatExpr  (IdentSupply JExpr)
            | AntiExpr   String
            | TypeExpr   Bool JExpr JLocalType
-             deriving (Eq, Ord, Show, Data, Typeable)
+           deriving (Eq, Ord, Show, Data, Typeable)
 
 -- | Values
 data JVal = JVar     Ident
@@ -172,10 +184,10 @@ data JVal = JVar     Ident
           | JInt     Integer
           | JStr     String
           | JRegEx   String
-          | JHash    (M.Map String JExpr)
+          | JObject    (M.Map String JExpr)
           | JFunc    [Ident] JStat
           | UnsatVal (IdentSupply JVal)
-            deriving (Eq, Ord, Show, Data, Typeable)
+          deriving (Eq, Ord, Show, Data, Typeable)
 
 newtype SaneDouble = SaneDouble Double deriving (Data, Typeable, Fractional, Num)
 
@@ -192,13 +204,6 @@ instance Show SaneDouble where
 
 -- | Identifiers
 newtype Ident = StrI String deriving (Eq, Ord, Show, Data, Typeable)
-
-
---deriving instance Typeable2 (StateT [Ident] Identity)
---deriving instance Data (State [Ident] JVal)
---deriving instance Data (State [Ident] JExpr)
---deriving instance Data (State [Ident] JStat)
-
 
 
 expr2stat :: JExpr -> JStat
@@ -250,12 +255,17 @@ data JMGadt a where
 
 composOp :: Compos t => (forall a. t a -> t a) -> t b -> t b
 composOp f = runIdentity . composOpM (Identity . f)
+
 composOpM :: (Compos t, Monad m) => (forall a. t a -> m (t a)) -> t b -> m (t b)
 composOpM = compos return ap
+
 composOpM_ :: (Compos t, Monad m) => (forall a. t a -> m ()) -> t b -> m ()
 composOpM_ = composOpFold (return ()) (>>)
+
 composOpFold :: Compos t => b -> (b -> b -> b) -> (forall a. t a -> b) -> t c -> b
 composOpFold z c f = unC . compos (\_ -> C z) (\(C x) (C y) -> C (c x y)) (C . f)
+
+
 newtype C b a = C { unC :: b }
 
 class Compos t where
@@ -307,7 +317,7 @@ jmcompos ret app f' v =
            JInt    _ -> ret v'
            JStr    _ -> ret v'
            JRegEx  _ -> ret v'
-           JHash   m -> ret JHash `app` m'
+           JObject   m -> ret JObject `app` m'
                where (ls, vs) = unzip (M.toList m)
                      m' = ret (M.fromAscList . zip ls) `app` mapM' f vs
            JFunc xs s -> ret JFunc `app` mapM' f xs `app` f s
@@ -472,7 +482,9 @@ scopify x = evalState (jfromGADT <$> go (jtoGADT x)) (newIdentSupply Nothing)
 renderJs :: (JsToDoc a, JMacro a) => a -> Doc
 renderJs = jsToDoc . jsSaturate Nothing
 
--- | Render a syntax tree as a pretty-printable document, using a given prefix to all generated names. Use this with distinct prefixes to ensure distinct generated names between independent calls to render(Prefix)Js.
+-- | Render a syntax tree as a pretty-printable document, using a given prefix to all generated names.
+-- | Use this with distinct prefixes to ensure distinct generated names between independent calls to
+-- | render(Prefix)Js.
 renderPrefixJs :: (JsToDoc a, JMacro a) => String -> a -> Doc
 renderPrefixJs pfx = jsToDoc . jsSaturate (Just $ "jmId_"++pfx)
 
@@ -481,6 +493,10 @@ braceNest x = char '{' <+> nest 2 x $$ char '}'
 
 braceNest' :: Doc -> Doc
 braceNest' x = nest 2 (char '{' $+$ x) $$ char '}'
+
+handleDecl :: JsToDoc a => Maybe a -> Doc
+handleDecl Nothing = text ""
+handleDecl (Just tp) = text " /* ::" <+> jsToDoc tp <+> text "*/"
 
 class JsToDoc a
     where jsToDoc :: a -> Doc
@@ -525,7 +541,7 @@ instance JsToDoc JStat where
         | isPre = text (T.pack op) <> optParens x
         | otherwise = optParens x <> text (T.pack op)
     jsToDoc (AntiStat s) = text . T.pack $ "`(" ++ s ++ ")`"
-    jsToDoc (ForeignStat i t) = text "//foriegn" <+> jsToDoc i <+> text "::" <+> jsToDoc t
+    jsToDoc (ForeignStat i t) = text "//foreign" <+> jsToDoc i <+> text "::" <+> jsToDoc t
     jsToDoc (BlockStat xs) = jsToDoc (flattenBlocks xs)
 
 flattenBlocks :: [JStat] -> [JStat]
@@ -564,7 +580,7 @@ instance JsToDoc JVal where
     jsToDoc (JInt i) = integer i
     jsToDoc (JStr s) = text . T.pack $ "\""++encodeJson s++"\""
     jsToDoc (JRegEx s) = text . T.pack $ "/"++s++"/"
-    jsToDoc (JHash m)
+    jsToDoc (JObject m)
             | M.null m = text "{}"
             | otherwise = braceNest . fillSep . punctuate comma . map (\(x,y) -> squotes (text (T.pack x)) <> colon <+> jsToDoc y) $ M.toList m
     jsToDoc (JFunc is b) = parens $ text "function" <> parens (fillSep . punctuate comma . map jsToDoc $ is) $$ braceNest' (jsToDoc b)
@@ -650,7 +666,7 @@ instance ToJExpr JVal where
     toJExpr = ValExpr
 
 instance ToJExpr a => ToJExpr (M.Map String a) where
-    toJExpr = ValExpr . JHash . M.map toJExpr
+    toJExpr = ValExpr . JObject . M.map toJExpr
 
 instance ToJExpr Double where
     toJExpr = ValExpr . JDouble . SaneDouble
@@ -789,7 +805,7 @@ jhAdd :: ToJExpr a => String -> a -> M.Map String JExpr -> M.Map String JExpr
 jhAdd  k v m = M.insert k (toJExpr v) m
 
 jhFromList :: [(String, JExpr)] -> JVal
-jhFromList = JHash . M.fromList
+jhFromList = JObject . M.fromList
 
 jtFromList :: JType -> [(String, JType)] -> JType
 jtFromList t y = JTRecord t $ M.fromList y
@@ -804,7 +820,7 @@ instance ToJExpr Value where
     toJExpr (Number n)       = ValExpr $ JDouble $ realToFrac n
     toJExpr (String s)       = ValExpr $ JStr $ TS.unpack s
     toJExpr (Array vs)       = ValExpr $ JList $ map toJExpr $ V.toList vs
-    toJExpr (Object obj)     = ValExpr $ JHash $ M.fromList $ map (TS.unpack *** toJExpr) $ HM.toList obj
+    toJExpr (Object obj)     = ValExpr $ JObject $ M.fromList $ map (TS.unpack *** toJExpr) $ HM.toList obj
 
 -------------------------
 

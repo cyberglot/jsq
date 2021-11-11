@@ -1,22 +1,54 @@
-{-# Language StandaloneDeriving, DeriveDataTypeable, FlexibleContexts, UndecidableInstances, FlexibleInstances #-}
-module Language.JavaScript.JMacro.Types (
-  JType(..), Constraint(..), JLocalType, VarRef, anyType, parseType, runTypeParser
+{-# LANGUAGE StandaloneDeriving
+           , DeriveDataTypeable
+           , FlexibleContexts
+           , UndecidableInstances
+           , FlexibleInstances #-}
+
+module Language.JavaScript.JMacro.Types
+  ( JType(..)
+  , Constraint(..)
+  , JLocalType
+  , VarRef
+  , anyType
+  , parseType
+  , runTypeParser
   ) where
 
-import Control.Applicative hiding ((<|>))
-import Data.Char
+import Control.Applicative ()
+import Data.Char ( isUpper )
 
 import Data.Maybe(fromMaybe)
 
 import Text.ParserCombinators.Parsec
-import Text.Parsec.Prim hiding (runParser, try)
+    ( alphaNum,
+      letter,
+      oneOf,
+      string,
+      sepBy1,
+      (<|>),
+      getState,
+      setState,
+      runParser,
+      try,
+      ParseError,
+      State(State),
+      CharParser )
+import Text.Parsec.Prim
+    ( (<|>),
+      getState,
+      setState,
+      State(State),
+      mkPT,
+      runParsecT,
+      ParsecT,
+      Reply(Error, Ok) )
 import Text.ParserCombinators.Parsec.Language(emptyDef)
 import qualified Text.ParserCombinators.Parsec.Token as P
 
 import qualified Data.Map as M
 import Data.Map (Map)
 import Data.Set (Set)
-import Data.Generics
+import Data.Generics ( Data, Typeable )
 
 type VarRef = (Maybe String, Int)
 
@@ -26,7 +58,7 @@ data JType = JTNum
            | JTString
            | JTBool
            | JTStat
-           | JTFunc [JType] (JType)
+           | JTFunc [JType] JType
            | JTList JType
            | JTMap  JType
            | JTRecord JType (Map String JType)
