@@ -1,0 +1,126 @@
+name:                jsq
+version:             0.0.1
+github:              "cyberglot/jsq"
+synopsis:            QuasiQuotation library for programmatic generation of JavaScript code.
+description:         JavaScript syntax, functional syntax, hygienic names, compile-time guarantees of syntactic correctness, limited typechecking.
+category:            Language
+license:             BSD3
+license-file:        LICENSE
+author:              April Gonçalves, Gershom Bazerman
+maintainer:          april@cyberglot.me
+copyright:           2021, cyberglot. Gershom Bazerman 2009.
+
+extra-source-files:
+  - Readme.org
+
+dependencies:
+  - base >= 4.9 && < 5
+  - containers
+  - wl-pprint-text
+  - text
+  - safe >= 0.2
+  - parsec > 3.0
+  - template-haskell >= 2.3
+  - mtl > 1.1
+  - haskell-src-exts
+  - haskell-src-meta
+  - bytestring >= 0.9
+  - syb
+  - aeson >= 0.5
+  - regex-posix > 0.9
+  - vector >= 0.8
+  - unordered-containers >= 0.2
+  - pretty
+  - time
+  - json
+  - blaze-html
+
+when:
+  condition: flag(incomplete-error)
+  ghc-options:
+    - -Werror=incomplete-patterns
+    - -Werror=missing-fields
+    - -Werror=missing-methods
+
+flags:
+  incomplete-error:
+    description: >
+      Incomplete patterns, missing record fields, and missing class methods are
+      an error
+    manual: true
+    default: false
+
+library:
+  source-dirs: src
+
+executables:
+  jsq-exe:
+    source-dirs:      app
+    main:             Main.hs
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - jsq
+      - parseargs
+
+benchmarks:
+  jsq-bench:
+    main:         Main.hs
+    source-dirs:  bench
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - jsq
+      - criterion
+
+
+# library
+#   build-depends:     base >= 4.9, base < 5, containers, wl-pprint-text, text, safe >= 0.2, parsec > 3.0, template-haskell >= 2.3, mtl > 1.1 , haskell-src-exts, haskell-src-meta, bytestring >= 0.9, syb, aeson >= 0.5 , regex-posix > 0.9, vector >= 0.8, unordered-containers >= 0.2
+
+#   exposed-modules:   Language.JavaScript.JSQ
+#                      Language.JavaScript.JSQ.Util
+#                      Language.JavaScript.JSQ.TypeCheck
+#                      Language.JavaScript.JSQ.Types
+#                      Language.JavaScript.JSQ.Prelude
+#   other-modules:     Language.JavaScript.JSQ.Base
+#                      Language.JavaScript.JSQ.QQ
+#                      Language.JavaScript.JSQ.ParseTH
+#   ghc-options:       -Wall
+
+# flag benchmarks
+#   description: Build the benchmarks
+#   default: False
+
+# executable jsq
+#    build-depends:     base >= 4, base < 5, containers, wl-pprint-text, text, safe >= 0.2, parsec > 3.0, template-haskell >= 2.3, mtl > 1.1 , haskell-src-exts, haskell-src-meta, bytestring >= 0.9, syb, aeson >= 0.5 , regex-posix > 0.9, vector >= 0.8, unordered-containers >= 0.2, parseargs
+#    main-is: Language/JavaScript/JSQ/Executable.hs
+#    other-modules: Language.JavaScript.Jsq.Util
+#                   Language.JavaScript.Jsq.TypeCheck
+#                   Language.JavaScript.Jsq.Types
+#                   Language.JavaScript.Jsq.Prelude
+#                   Language.JavaScript.Jsq.Base
+#                   Language.JavaScript.Jsq.QQ
+#                   Language.JavaScript.Jsq.ParseTH
+#                   Language.JavaScript.Jsq
+
+
+# executable jsq-bench
+#   main-is: Language/JavaScript/Jsq/Benchmark.hs
+#   if flag(benchmarks)
+#     buildable: True
+#     build-depends: criterion
+#     other-modules: Language.JavaScript.Jsq.Util
+#                    Language.JavaScript.Jsq.TypeCheck
+#                    Language.JavaScript.Jsq.Types
+#                    Language.JavaScript.Jsq.Prelude
+#                    Language.JavaScript.Jsq.Base
+#                    Language.JavaScript.Jsq.QQ
+#                    Language.JavaScript.Jsq.ParseTH
+#                    Language.JavaScript.Jsq
+
+#   else
+#     buildable: False

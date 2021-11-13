@@ -1,7 +1,9 @@
 {-# LANGUAGE QuasiQuotes #-}
 
+module Main where
+
 import Criterion.Main
-import Language.JavaScript.JMacro
+import Language.JavaScript.JSQ
 import Text.PrettyPrint.Leijen.Text (renderPretty, renderCompact, displayT)
 
 main = defaultMain [pretty, compact]
