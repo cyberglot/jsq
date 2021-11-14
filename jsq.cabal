@@ -37,7 +37,6 @@ library
       Language.JavaScript.JSQ.ParseTH
       Language.JavaScript.JSQ.Prelude
       Language.JavaScript.JSQ.QQ
-      Language.JavaScript.JSQ.Rpc
       Language.JavaScript.JSQ.TypeCheck
       Language.JavaScript.JSQ.Types
       Language.JavaScript.JSQ.Util
@@ -45,6 +44,22 @@ library
       Paths_jsq
   hs-source-dirs:
       src
+  default-extensions:
+      FlexibleInstances
+      UndecidableInstances
+      OverloadedStrings
+      TypeFamilies
+      RankNTypes
+      DeriveDataTypeable
+      StandaloneDeriving
+      FlexibleContexts
+      TypeSynonymInstances
+      ScopedTypeVariables
+      GADTs
+      GeneralizedNewtypeDeriving
+      LambdaCase
+      TemplateHaskell
+      QuasiQuotes
   build-depends:
       aeson >=0.5
     , base >=4.9 && <5
@@ -76,6 +91,22 @@ executable jsq-exe
       Paths_jsq
   hs-source-dirs:
       app
+  default-extensions:
+      FlexibleInstances
+      UndecidableInstances
+      OverloadedStrings
+      TypeFamilies
+      RankNTypes
+      DeriveDataTypeable
+      StandaloneDeriving
+      FlexibleContexts
+      TypeSynonymInstances
+      ScopedTypeVariables
+      GADTs
+      GeneralizedNewtypeDeriving
+      LambdaCase
+      TemplateHaskell
+      QuasiQuotes
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson >=0.5
@@ -111,6 +142,22 @@ benchmark jsq-bench
       Paths_jsq
   hs-source-dirs:
       bench
+  default-extensions:
+      FlexibleInstances
+      UndecidableInstances
+      OverloadedStrings
+      TypeFamilies
+      RankNTypes
+      DeriveDataTypeable
+      StandaloneDeriving
+      FlexibleContexts
+      TypeSynonymInstances
+      ScopedTypeVariables
+      GADTs
+      GeneralizedNewtypeDeriving
+      LambdaCase
+      TemplateHaskell
+      QuasiQuotes
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson >=0.5

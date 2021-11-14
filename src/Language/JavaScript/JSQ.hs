@@ -1,16 +1,13 @@
 {- |
 Module      :  Language.JavaScript.JSQ
-Copyright   :  (c) Gershom Bazerman, 2010
+Copyright   :  (c) April Gonçalves, 2021. Gershom Bazerman, 2010.
 License     :  BSD 3 Clause
-Maintainer  :  gershomb@gmail.com
+Maintainer  :  @cyberglot
 Stability   :  experimental
 
 Simple DSL for lightweight (untyped) programmatic generation of JavaScript.
 
 A number of examples are available in the source of "Language.JavaScript.JSQ.Prelude".
-
-Functions to generate generic RPC wrappers (using json serialization) are available in
-"Language.JavaScript.JSQ.Rpc".
 
 usage:
 

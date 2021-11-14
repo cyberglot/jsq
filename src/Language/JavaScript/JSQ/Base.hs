@@ -1,24 +1,9 @@
-{-# LANGUAGE FlexibleInstances
-           , UndecidableInstances
-           , OverlappingInstances
-           , OverloadedStrings
-           , TypeFamilies
-           , RankNTypes
-           , DeriveDataTypeable
-           , StandaloneDeriving
-           , FlexibleContexts
-           , TypeSynonymInstances
-           , ScopedTypeVariables
-           , GADTs
-           , GeneralizedNewtypeDeriving
-           , LambdaCase #-}
-
 -----------------------------------------------------------------------------
 {- |
 Module      :  Language.JavaScript.JSQ.Base
-Copyright   :  (c) April Gonçalves, 2020. Gershom Bazerman, 2009.
+Copyright   :  (c) April Gonçalves, 2021. Gershom Bazerman, 2009.
 License     :  BSD 3 Clause
-Maintainer  :  april@cyberglot.me
+Maintainer  :  @cyberglot
 Stability   :  experimental
 
 Simple DSL for lightweight (untyped) programmatic generation of JavaScript.
@@ -48,17 +33,19 @@ module Language.JavaScript.JSQ.Base (
   jsSaturate, jtFromList, SaneDouble(..)
   ) where
 import Prelude hiding (tail, init, head, last, minimum, maximum, foldr1, foldl1, (!!), read)
-import Control.Applicative hiding (empty)
 import Control.Arrow ((***))
+import Control.Applicative hiding (empty)
 import Control.Monad.State.Strict
-import Control.Monad.Identity
+    ( ap, liftM2, MonadState(put, get), evalState, runState, State )
+import Control.Monad.Identity ( Identity(Identity, runIdentity) )
 
-import Data.Function
+import Data.Function ( on )
 import Data.Char (toLower,isControl)
 import qualified Data.Map as M
 import qualified Data.Text.Lazy as T
 import qualified Data.Text as TS
 import Data.Generics
+    ( Data(gunfold, dataTypeOf, toConstr), Typeable, mkNoRepType )
 import Data.Monoid (Monoid, mappend, mempty)
 import Data.Semigroup (Semigroup(..))
 
@@ -809,7 +796,7 @@ jhSingle :: ToJExpr a => String -> a -> M.Map String JExpr
 jhSingle k v = jhAdd k v $ jhEmpty
 
 jhAdd :: ToJExpr a => String -> a -> M.Map String JExpr -> M.Map String JExpr
-jhAdd  k v m = M.insert k (toJExpr v) m
+jhAdd k v = M.insert k (toJExpr v)
 
 jhFromList :: [(String, JExpr)] -> JVal
 jhFromList = JObject . M.fromList

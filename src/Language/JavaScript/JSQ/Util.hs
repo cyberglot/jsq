@@ -1,17 +1,44 @@
 module Language.JavaScript.JSQ.Util where
 
-import Prelude hiding (tail, init, head, last, minimum, maximum, foldr1, foldl1, (!!), read, (<), (&&))
+import Prelude hiding
+  (tail
+  , init
+  , head
+  , last
+  , minimum
+  , maximum
+  , foldr1
+  , foldl1
+  , (!!)
+  , read
+  , (<)
+  , (&&)
+  )
 
 import qualified Prelude as P
 import Language.JavaScript.JSQ.Base
-    ( ToStat(..),
-      ToJExpr(toJExpr),
-      Ident(StrI),
-      JVal(JStr, JList),
-      JExpr(ValExpr, SelExpr, IdxExpr, ApplExpr, InfixExpr, NewExpr),
-      JStat(ReturnStat, AssignStat, ApplStat, BlockStat, IfStat,
-            WhileStat),
-      jsv )
+  ( ToStat (..)
+  , ToJExpr (toJExpr)
+  , Ident (StrI)
+  , JVal ( JStr
+         , JList
+         )
+  , JExpr ( ValExpr
+          , SelExpr
+          , IdxExpr
+          , ApplExpr
+          , InfixExpr
+          , NewExpr
+          )
+  , JStat ( ReturnStat
+          , AssignStat
+          , ApplStat
+          , BlockStat
+          , IfStat
+          , WhileStat
+          )
+  , jsv
+  )
 
 (.) :: JExpr -> String -> JExpr
 x . y = SelExpr x (StrI y)
@@ -51,7 +78,7 @@ ifElse :: (ToJExpr a, ToStat b, ToStat c) => a -> b -> c -> JStat
 ifElse x y z = IfStat (toJExpr x) (toStat y) (toStat z)
 
 while :: ToJExpr a => a -> JStat -> JStat
-while x y = WhileStat False (toJExpr x) y
+while x = WhileStat False (toJExpr x)
 
 return :: ToJExpr a => a -> JStat
 return x = ReturnStat (toJExpr x)

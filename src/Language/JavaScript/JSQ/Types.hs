@@ -1,9 +1,3 @@
-{-# LANGUAGE StandaloneDeriving
-           , DeriveDataTypeable
-           , FlexibleContexts
-           , UndecidableInstances
-           , FlexibleInstances #-}
-
 module Language.JavaScript.JSQ.Types
   ( JType(..)
   , Constraint(..)

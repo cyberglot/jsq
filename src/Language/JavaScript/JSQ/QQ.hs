@@ -1,11 +1,9 @@
-{-# LANGUAGE FlexibleInstances, UndecidableInstances, OverlappingInstances, TypeFamilies, TemplateHaskell, QuasiQuotes, RankNTypes, GADTs #-}
-
 -----------------------------------------------------------------------------
 {- |
 Module      :  Language.JavaScript.JSQ
-Copyright   :  (c) Gershom Bazerman, 2009
+Copyright   :  (c) April Gonçalves, 2021. Gershom Bazerman, 2009.
 License     :  BSD 3 Clause
-Maintainer  :  gershomb@gmail.com
+Maintainer  :  @cyberglot
 Stability   :  experimental
 
 Simple EDSL for lightweight (untyped) programmatic generation of JavaScript.
@@ -329,7 +327,7 @@ parseJSQ s = BlockStat <$> runParser jsqParser () "" s
             return ans
 
 parseJSQE :: String -> Either ParseError JExpr
-parseJSQE s = runParser jsqParserE () "" s
+parseJSQE = runParser jsqParserE () ""
     where jsqParserE = do
             ans <- whiteSpace >> expr
             eof

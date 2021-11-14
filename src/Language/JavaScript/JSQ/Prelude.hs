@@ -1,8 +1,8 @@
 {- |
 Module      :  Language.JavaScript.JSQ.Prelude
-Copyright   :  (c) Gershom Bazerman, Jeff Polakow 2010
+Copyright   :  (c) April Gonçalves, 2021. Gershom Bazerman, Jeff Polakow 2010.
 License     :  BSD 3 Clause
-Maintainer  :  gershomb@gmail.com
+Maintainer  :  @cyberglot
 Stability   :  experimental
 -}
 
@@ -10,11 +10,18 @@ Stability   :  experimental
 
 module Language.JavaScript.JSQ.Prelude where
 import Language.JavaScript.JSQ.Base
-import Language.JavaScript.JSQ.QQ
+    ( ToJExpr(toJExpr),
+      JStat(BlockStat),
+      jLam,
+      jVarTy,
+      jForIn,
+      jTryCatchFinally,
+      jhFromList )
+import Language.JavaScript.JSQ.QQ ( jsq )
 
 
 -- | This provides a set of basic functional programming primitives, a few utility functions
--- and, more importantly, a decent sample of idiomatic jsq code. View the source for details.
+-- | and, more importantly, a decent sample of idiomatic jsq code. View the source for details.
 jsqPrelude :: JStat
 jsqPrelude = [jsq|
 

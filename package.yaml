@@ -42,6 +42,23 @@ when:
     - -Werror=missing-fields
     - -Werror=missing-methods
 
+default-extensions:
+  - FlexibleInstances
+  - UndecidableInstances
+  - OverloadedStrings
+  - TypeFamilies
+  - RankNTypes
+  - DeriveDataTypeable
+  - StandaloneDeriving
+  - FlexibleContexts
+  - TypeSynonymInstances
+  - ScopedTypeVariables
+  - GADTs
+  - GeneralizedNewtypeDeriving
+  - LambdaCase
+  - TemplateHaskell
+  - QuasiQuotes
+
 flags:
   incomplete-error:
     description: >
