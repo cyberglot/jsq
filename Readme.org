@@ -4,7 +4,8 @@ Generate JavaScript in Haskell using Template Haskell. It extends existing libra
 
 ** Roadmap
  * TODO
-   - [ ] =const=
-   - [ ]  =let=
+   - [x] =const=
+   - [x]  =let=
    - [ ] =async/await=
    - [ ] =()=>()= and =()=>{}=
+   - [ ] replace =Monad.Error= with =Control.Monad.Trans.Except=
