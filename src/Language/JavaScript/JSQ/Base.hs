@@ -134,6 +134,7 @@ data JStat = DeclStat     Ident (Maybe JLocalType)
            | LabelStat    JsLabel JStat
            | BreakStat    (Maybe JsLabel)
            | ContinueStat (Maybe JsLabel)
+           | ExportStat   JExpr
            deriving (Eq, Ord, Show, Data, Typeable)
 
 type JsLabel = String
@@ -287,6 +288,7 @@ jsqcompos ret app f' v =
            ContinueStat l -> ret (ContinueStat l)
            BreakStat l -> ret (BreakStat l)
            LabelStat l s -> ret (LabelStat l) `app` f s
+           ExportStat i -> ret ExportStat `app` f i
      JSQGExpr v' -> ret JSQGExpr `app` case v' of
            ValExpr e -> ret ValExpr `app` f e
            SelExpr e e' -> ret SelExpr `app` f e `app` f e'
@@ -515,9 +517,10 @@ instance JsToDoc JStat where
         where txt | each = "for each"
                   | otherwise = "for"
     jsToDoc (SwitchStat e l d) = text "switch" <+> parens (jsToDoc e) $$ braceNest' cases
-        where l' = map (\(c,s) -> (text "case" <+> parens (jsToDoc c) <> char ':') $$$ (jsToDoc s)) l ++ [text "default:" $$$ (jsToDoc d)]
+        where l' = map (\(c,s) -> (text "case" <+> parens (jsToDoc c) <> char ':') $$$ jsToDoc s) l ++ [text "default:" $$$ jsToDoc d]
               cases = vcat l'
     jsToDoc (ReturnStat e) = text "return" <+> jsToDoc e
+    jsToDoc (ExportStat e) = text "module.exports" <+> jsToDoc e
     jsToDoc (ApplStat e es) = jsToDoc e <> (parens . fillSep . punctuate comma $ map jsToDoc es)
     jsToDoc (TryStat s i s1 s2) = text "try" $$ braceNest' (jsToDoc s) $$ mbCatch $$ mbFinally
         where mbCatch | s1 == BlockStat [] = PP.empty

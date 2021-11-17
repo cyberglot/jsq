@@ -85,7 +85,7 @@ import Language.JavaScript.JSQ.Base
             PPostExpr, ApplExpr, NewExpr, AntiExpr),
       JStat(ForeignStat, IfStat, SwitchStat, TryStat, ForInStat,
             ReturnStat, WhileStat, BreakStat, ContinueStat, LabelStat,
-            AntiStat, DeclStat, AssignStat, ApplStat, BlockStat),
+            AntiStat, DeclStat, AssignStat, ApplStat, BlockStat, ExportStat),
       expr2stat,
       composOp,
       jsv,
@@ -573,6 +573,9 @@ statement = declStat
 
       returnStat =
         reserved "return" >> (:[]) . ReturnStat <$> option (ValExpr $ JVar $ StrI "undefined") expr
+
+      exportStat =
+        reserved "export" >> (:[]) . ExportStat <$> expr
 
       ifStat = do
         reserved "if"
