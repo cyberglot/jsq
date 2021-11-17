@@ -219,22 +219,18 @@ class JSQ a where
 instance JSQ Ident where
     jtoGADT = JSQGId
     jfromGADT (JSQGId x) = x
-    jfromGADT _ = error "impossible"
 
 instance JSQ JStat where
     jtoGADT = JSQGStat
     jfromGADT (JSQGStat x) = x
-    jfromGADT _ = error "impossible"
 
 instance JSQ JExpr where
     jtoGADT = JSQGExpr
     jfromGADT (JSQGExpr x) = x
-    jfromGADT _ = error "impossible"
 
 instance JSQ JVal where
     jtoGADT = JSQGVal
     jfromGADT (JSQGVal x) = x
-    jfromGADT _ = error "impossible"
 
 -- | Union type to allow regular traversal by compos.
 data JSQGadt a where
@@ -330,16 +326,16 @@ class ToSat a where
     toSat_ :: a -> [Ident] -> IdentSupply (JStat, [Ident])
 
 instance ToSat [JStat] where
-    toSat_ f vs = IS $ return $ (BlockStat f, reverse vs)
+    toSat_ f vs = IS $ return (BlockStat f, reverse vs)
 
 instance ToSat JStat where
-    toSat_ f vs = IS $ return $ (f, reverse vs)
+    toSat_ f vs = IS $ return (f, reverse vs)
 
 instance ToSat JExpr where
-    toSat_ f vs = IS $ return $ (expr2stat f, reverse vs)
+    toSat_ f vs = IS $ return (expr2stat f, reverse vs)
 
 instance ToSat [JExpr] where
-    toSat_ f vs = IS $ return $ (BlockStat $ map expr2stat f, reverse vs)
+    toSat_ f vs = IS $ return (BlockStat $ map expr2stat f, reverse vs)
 
 instance (ToSat a, b ~ JExpr) => ToSat (b -> a) where
     toSat_ f vs = IS $ do
@@ -418,7 +414,7 @@ withHygiene_ un f x = jfromGADT $ case jtoGADT x of
     JSQGVal  _ -> jtoGADT $ UnsatVal (jsUnsat_ is' x'')
     JSQGId _ -> jtoGADT $ f x
     where
-        (x', (StrI l : _)) = runState (runIdentSupply $ jsSaturate_ x) is
+        (x', StrI l : _) = runState (runIdentSupply $ jsSaturate_ x) is
         is' = take lastVal is
         x'' = f x'
         lastVal = readNote ("inSat" ++ un) (reverse . takeWhile (/= '_') . reverse $ l) :: Int
@@ -542,9 +538,8 @@ flattenBlocks (y:ys) = y : flattenBlocks ys
 flattenBlocks [] = []
 
 optParens :: JExpr -> Doc
-optParens x = case x of
-                (PPostExpr _ _ _) -> parens (jsToDoc x)
-                _ -> jsToDoc x
+optParens x@PPostExpr {} = parens (jsToDoc x)
+optParens x = jsToDoc x
 
 instance JsToDoc JExpr where
     jsToDoc (ValExpr x) = jsToDoc x

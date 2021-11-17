@@ -284,8 +284,78 @@ lexer = P.makeTokenParser jsLang
 
 jsLang :: P.LanguageDef ()
 jsLang = javaStyle {
-           P.reservedNames = ["var", "const", "let", "return","if","else","while","for","in","break","continue","new","function","switch","case","default","fun","try","catch","finally","foreign","do"],
-           P.reservedOpNames = ["|>","<|","+=","-=","*=","/=","%=","<<=", ">>=", ">>>=", "&=", "^=", "|=", "--","*","/","+","-",".","%","?","=","==","!=","<",">","&&","||","&", "^", "|", "++","===","!==", ">=","<=","!", "~", "<<", ">>", ">>>", "->","::","::!",":|","@"],
+           P.reservedNames = [ "var"
+                             , "const"
+                             , "let"
+                             , "return"
+                             , "if"
+                             , "else"
+                             , "while"
+                             , "for"
+                             , "in"
+                             , "break"
+                             , "continue"
+                             , "new"
+                             , "function"
+                             , "switch"
+                             , "case"
+                             , "default"
+                             , "fun"
+                             , "try"
+                             , "catch"
+                             , "finally"
+                             , "foreign"
+                             , "do"
+                             , "module.exports"
+                             , "exports"
+                             ],
+           P.reservedOpNames = [ "|>"
+                               , "<|"
+                               , "+="
+                               , "-="
+                               , "*="
+                               , "/="
+                               , "%="
+                               , "<<="
+                               , ">>="
+                               , ">>>="
+                               , "&="
+                               , "^="
+                               , "|="
+                               , "--"
+                               , "*"
+                               , "/"
+                               , "+"
+                               , "-"
+                               , "."
+                               , "%"
+                               , "?"
+                               , "="
+                               , "=="
+                               , "!="
+                               , "<"
+                               , ">"
+                               , "&&"
+                               , "||"
+                               , "&"
+                               , "^"
+                               , "|"
+                               , "++"
+                               , "==="
+                               , "!=="
+                               , ">="
+                               , "<="
+                               , "!"
+                               , "~"
+                               , "<<"
+                               , ">>"
+                               , ">>>"
+                               , "->"
+                               , "::"
+                               , "::!"
+                               , ":|"
+                               , "@"
+                               ],
            P.identLetter = alphaNum <|> oneOf "_$",
            P.identStart  = letter <|> oneOf "_$",
            P.opStart = oneOf "|+-/*%<>&^.?=!~:@",
@@ -427,7 +497,7 @@ statblock0 :: JSQParser [JStat]
 statblock0 = try statblock <|> (whiteSpace >> return [])
 
 l2s :: [JStat] -> JStat
-l2s xs = BlockStat xs
+l2s = BlockStat
 
 statementOrEmpty :: JSQParser [JStat]
 statementOrEmpty = try emptyStat <|> statement
@@ -612,14 +682,6 @@ statement = declStat
       expr2stat' e = case expr2stat e of
                        BlockStat [] -> pzero
                        x -> return [x]
-{-
-      expr2stat' :: JExpr -> JStat
-      expr2stat' (ApplExpr x y) = return $ (ApplStat x y)
-      expr2stat' (IfExpr x y z) = liftM2 (IfStat x) (expr2stat' y) (expr2stat' z)
-      expr2stat' (PostExpr s x) = return $ PostStat s x
-      expr2stat' (AntiExpr x)   = return $ AntiStat x
-      expr2stat' _ = fail "Value expression used as statement"
--}
 
       breakStat = do
         reserved "break"
@@ -677,7 +739,7 @@ expr = do
           t <- exprWithIf
           _ <- colon
           el <- exprWithIf
-          let ans = (IfExpr e t el)
+          let ans = IfExpr e t el
           addIf ans <|> return ans
     rawExpr = buildExpressionParser table dotExpr <?> "expression"
     table = [[pop "~", pop "!", negop],
@@ -737,13 +799,13 @@ dotExprOne = addNxt =<< valExpr <|> antiExpr <|> antiExprSimple <|> parens' expr
     newExpr = NewExpr <$> (reserved "new" >> dotExpr)
 
     antiExpr  = AntiExpr <$> do
-         x <- (try (symbol "`(") >> anyChar `manyTill` try (string ")`"))
+         x <- try (symbol "`(") >> anyChar `manyTill` try (string ")`")
          either (fail . ("Bad AntiQuotation: \n" ++))
                 (const (return x))
                 (parseHSExp x)
 
     antiExprSimple  = AntiExpr <$> do
-         x <- (symbol "`" >> anyChar `manyTill` string "`")
+         x <- symbol "`" >> anyChar `manyTill` string "`"
          either (fail . ("Bad AntiQuotation: \n" ++))
                 (const (return x))
                 (parseHSExp x)
@@ -812,7 +874,7 @@ ident' = do
         = scan names
         where
           scan []       = False
-          scan (r:rs)   = case (compare r name) of
+          scan (r:rs)   = case compare r name of
                             LT  -> scan rs
                             EQ  -> True
                             GT  -> False
